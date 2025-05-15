@@ -18,11 +18,8 @@ class preview:
     fs="shaders/frag.fs.glsl"
     vert=full_square
     vnum=None
-    '''
-    def __init__(self,tvs=None,tfs=None,tvert=None):
-        self.vs=tvs or self.vs
-        self.fs=tfs or self.fs
-        self.vert=tvert or self.vert'''
+    clock=None
+    
 @dataclass 
 class uniform:
     frameno=0
@@ -62,23 +59,27 @@ def load_buffer(dis):
     glEnableVertexAttribArray(1)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, ctypes.c_void_p(12))
 
-def update_uniforms(uni,uid):
-
-	glUniform1i(uid[0],	uni.frameno)
-	glUniform1f(uid[1],	uni.framerate)
-	glUniform1f(uid[2],	uni.time)
-	glUniform1f(uid[3],	uni.dtime)
-	glUniform2f(uid[4],	uni.mcoord[0],	uni.mcoord[1])
-	glUniform2f(uid[5],	uni.resolution[0],	uni.resolution[1])
+def update_uniforms(uni,uid,dis):
+    uni.coord=tuple(map(float,pg.mouse.get_pos()))
+    uni.resolution=tuple(map(float,pg.display.get_window_size()))
+    uni.frameno+=1
+    uni.dtime=dis.clock.get_time()/1000
+    uni.time+=uni.dtime
+    uni.framerate=dis.clock.get_fps()
+    glUniform1i(uid[0],	uni.frameno)
+    glUniform1f(uid[1],	uni.framerate)
+    glUniform1f(uid[2],	uni.time)
+    glUniform1f(uid[3],	uni.dtime)
+    glUniform2f(uid[4],	uni.mcoord[0],	uni.mcoord[1])
+    glUniform2f(uid[5],	uni.resolution[0],	uni.resolution[1])
 
 def main():
-    clock=None
-    uni=uniform()
     dis=preview()
+    uni=uniform()
     try:
         pg.init()
         pg.display.set_mode((640,480), pg.OPENGL|pg.DOUBLEBUF)
-        clock = pg.time.Clock()
+        dis.clock = pg.time.Clock()
 
         glClearColor(0.1, 0.2, 0.2, 1)
         
@@ -98,7 +99,6 @@ def main():
 
         running = True
         while (running):
-            uni.frameno+=1
             if uni.frameno%40==0:
                 glDeleteProgram(dis.pid)
                 dis.pid=create_shader(
@@ -115,14 +115,16 @@ def main():
             glUseProgram(dis.pid)
             glBindVertexArray(dis.vao)
             
-            update_uniforms(uni, uid)
+            update_uniforms(uni, uid, dis)
             glDrawArrays(GL_TRIANGLES, 0, dis.vnum)
 
 
             pg.display.flip()
 
             #timing
-            clock.tick(60)
+            dis.clock.tick(60)
+    except Exception as e:
+        raise e
     finally:
         glDeleteVertexArrays(1,(dis.vao,))
         glDeleteBuffers(1,(dis.vbo,))
