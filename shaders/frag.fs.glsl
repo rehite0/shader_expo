@@ -1,6 +1,12 @@
 #version 430
 
-in vec3 fragmentColor;
+uniform int		frameno
+uniform float	framerate
+uniform float	time
+uniform float	dtime
+uniform vec2	mcoord
+uniform vec2	resolution
+in vec3	fragmentColor;
 
 out vec4 color;
 
