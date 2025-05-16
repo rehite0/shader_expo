@@ -31,16 +31,27 @@ class uniform:
 
 
 def create_shader(vertex_filepath: str, fragment_filepath: str) -> int:
-    with open(vertex_filepath,'r') as f:
-        vertex_src = f.readlines()
+    isbroken=0
+    while (1):
+        try:
+            with open(vertex_filepath,'r') as f:
+                vertex_src = f.readlines()
 
-    with open(fragment_filepath,'r') as f:
-        fragment_src = f.readlines()
-    
-    shader = compileProgram(compileShader(vertex_src, GL_VERTEX_SHADER),
-                            compileShader(fragment_src, GL_FRAGMENT_SHADER))
-    
-    return shader
+            with open(fragment_filepath,'r') as f:
+                fragment_src = f.readlines()
+            
+            shader = compileProgram(compileShader(vertex_src, GL_VERTEX_SHADER),
+                                    compileShader(fragment_src, GL_FRAGMENT_SHADER))
+            if isbroken:
+                print("reloaded!!")
+            isbroken=0
+            return shader
+        except Exception as e:
+            if str(e)!=isbroken:
+                print(str(e).encode('latin-1').decode('unicode_escape'),"\n\n")
+            isbroken=str(e)
+            sleep(1.5)
+            continue
 
 def load_buffer(dis):
     dis.vnum = len(dis.vert)//6
@@ -78,7 +89,7 @@ def main():
     uni=uniform()
     try:
         pg.init()
-        pg.display.set_mode((640,480), pg.OPENGL|pg.DOUBLEBUF)
+        pg.display.set_mode((640,480),pg.RESIZABLE, pg.OPENGL|pg.DOUBLEBUF)
         dis.clock = pg.time.Clock()
 
         glClearColor(0.1, 0.2, 0.2, 1)
