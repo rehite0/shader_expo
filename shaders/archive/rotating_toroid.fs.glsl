@@ -14,12 +14,6 @@ mat3 rotate_x(float a){float sa = sin(a); float ca = cos(a); return mat3(vec3(1.
 mat3 rotate_y(float a){float sa = sin(a); float ca = cos(a); return mat3(vec3(ca,.0,sa),    vec3(.0,1.,.0),   vec3(-sa,.0,ca));}
 mat3 rotate_z(float a){float sa = sin(a); float ca = cos(a); return mat3(vec3(ca,sa,.0),    vec3(-sa,ca,.0),  vec3(.0,.0,1.));}
 
-float GetDist(vec3 p) {
-    float r=0.4;
-    float R=0.2;
-    return sdTorus(p,vec2(r,R);
-}
-
 float sdTorus( vec3 p, vec2 t )
 {
   p=rotate_x(3.14/2)*rotate_y(time)*rotate_z(time)*p;
@@ -30,14 +24,14 @@ vec3 md_torus(vec3 cam, vec3 camd, vec3 p, float r, float R){
     vec3 t=cam;
     float dio=0.0;
     for(int i=0;i<100;i++){
-	float dist=GetDist(p-t);
+	float dist=sdTorus(p-t,vec2(r,R));
 	dio+=dist;
 	if (dist<=0.005)
 	    return vec3(sqrt((4.-dio)/3.));
 	else
 	    t+=dist*camd;
     }
-    return vec3(0.);//mindis;
+    return vec3(0.);
 }
 
 void main()
@@ -53,6 +47,8 @@ void main()
 
     //coord of point
     vec3 p=vec3(0.);
+    float r=0.4;
+    float R=0.2;
 
     // pixel color
     vec3 col =md_torus(cam,camd,p,r,R);
