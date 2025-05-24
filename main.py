@@ -92,7 +92,7 @@ def main():
         pg.display.set_mode((640,480),pg.RESIZABLE, pg.OPENGL|pg.DOUBLEBUF)
         dis.clock = pg.time.Clock()
 
-        glClearColor(0.1, 0.2, 0.2, 1)
+        glClearColor(0.0, 0.0, 0.0, 1.0)
         
         load_buffer(dis)
         dis.pid=create_shader(
@@ -108,6 +108,9 @@ def main():
         	,glGetUniformLocation(dis.pid,"resolution")
         ]
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
         running = True
         while (running):
             if uni.frameno%40==0:
